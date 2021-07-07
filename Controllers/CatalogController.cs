@@ -38,9 +38,11 @@ namespace CSWebAPI.Controllers
 
             _locationId = configuration["AppSettings:LocationId"];
 
-           
+
 
         }
+
+       
 
         [HttpGet("catalog")]
 
@@ -57,6 +59,9 @@ namespace CSWebAPI.Controllers
 
                 var variationList = result.Objects.Where(o => o.Type == "ITEM_VARIATION").ToList();
 
+                
+             
+
 
                 var filteredVariations = (from variation in variationList
                                           join item in itemList on variation.ItemVariationData.ItemId equals item.Id
@@ -70,17 +75,17 @@ namespace CSWebAPI.Controllers
                      //join relational data
                  join item in itemList on image.Id equals item.ImageId
                  //declare new object with query
-                 select new SquareCatalogItemObject { Id = item.Id, ImageUrl = image.ImageData.Url, variations = filteredVariations, Name = item.ItemData.Name }).ToList();
+                 select new SquareCatalogItemObject { Id = item.Id, ImageUrl = image.ImageData.Url, variations = filteredVariations.Where(f => f.ParentId == item.Id).ToList(), Name = item.ItemData.Name }).ToList();
 
 
 
-                
+
                 string output = JsonConvert.SerializeObject(filteredList);
                 // foreach (var o in filteredList)
                 // {
                 //     newList.Add(o);
                 //     string output = JsonConvert.SerializeObject(newList);
-                    
+
 
                 // }
                 return Ok(output);
