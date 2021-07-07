@@ -8,13 +8,11 @@ using Square;
 using Square.Models;
 using Square.Apis;
 using Square.Exceptions;
-using System.Threading.Tasks;
 using CSWebAPI.Models;
 
 namespace CSWebAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     public class PaymentsController : ControllerBase
     {
 
@@ -23,7 +21,7 @@ namespace CSWebAPI.Controllers
 
         private Models.Address _address;
 
-        private readonly List<LineItem> _clientLineItems;
+        private readonly List<OrderLineItem> _clientLineItems;
         public PaymentsController(Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
             // Get environment
@@ -40,7 +38,45 @@ namespace CSWebAPI.Controllers
 
         }
 
+        [HttpPost("createCustomer")]
+        public async Task<IActionResult> CreateCustomer([FromBody] Customer customer)
+        {
+            var address = new Square.Models.Address.Builder()
+              .AddressLine1(customer.Address.AddressLine1)
+              .PostalCode(customer.Address.PostalCode)
+              .Country("US")
+              .FirstName(customer.GivenName)
+              .LastName(customer.FamilyName)
+              .Build();
 
+            var body = new CreateCustomerRequest.Builder()
+              .GivenName(customer.GivenName)
+              .FamilyName(customer.FamilyName)
+              .EmailAddress(customer.EmailAddress)
+              .Address(customer.Address)
+              .Birthday(customer.Birthday)
+              .Build();
+
+            try
+            {
+                var result = await client.CustomersApi.CreateCustomerAsync(body: body);
+                return Ok(result);
+            }
+            catch (ApiException e)
+            {
+                Console.WriteLine(body);
+                Console.WriteLine("Failed to make the request");
+                Console.WriteLine($"Response Code: {e.ResponseCode}");
+                Console.WriteLine($"Exception: {e.Message}");
+                return BadRequest();
+            }
+
+
+
+        }
+
+
+        [HttpPost("checkout")]
         async public Task<IActionResult> OnPost()
         {
             ICheckoutApi checkoutApi = client.CheckoutApi;
@@ -58,10 +94,10 @@ namespace CSWebAPI.Controllers
 
 
 
-                foreach (LineItem l in _clientLineItems)
+                foreach (OrderLineItem l in _clientLineItems)
                 {
 
-                    var orderLineItem = new OrderLineItem.Builder(quantity: l.Quanitity)
+                    var orderLineItem = new OrderLineItem.Builder(quantity: l.Quantity)
                                                       .CatalogObjectId(l.CatalogObjectId)
                                                       .Build();
                     lineItems.Add(orderLineItem);
