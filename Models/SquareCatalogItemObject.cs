@@ -12,7 +12,11 @@ namespace CSWebAPI.Models
         [JsonProperty("Url")]
         public string ImageUrl { get; set; }
         [JsonProperty("ItemName")]
+        
         public string Name { get; set; }
+
+        [JsonProperty("CategoryId")]
+        public string CategoryId {get; set;}
         [JsonProperty("ItemVariations")]
         public List<SquareCatalogItemVariation> variations { get; set; }
 

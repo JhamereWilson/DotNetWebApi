@@ -42,7 +42,7 @@ namespace CSWebAPI.Controllers
 
         }
 
-       
+
 
         [HttpGet("catalog")]
 
@@ -59,8 +59,7 @@ namespace CSWebAPI.Controllers
 
                 var variationList = result.Objects.Where(o => o.Type == "ITEM_VARIATION").ToList();
 
-                
-             
+
 
 
                 var filteredVariations = (from variation in variationList
@@ -75,7 +74,7 @@ namespace CSWebAPI.Controllers
                      //join relational data
                  join item in itemList on image.Id equals item.ImageId
                  //declare new object with query
-                 select new SquareCatalogItemObject { Id = item.Id, ImageUrl = image.ImageData.Url, variations = filteredVariations.Where(f => f.ParentId == item.Id).ToList(), Name = item.ItemData.Name }).ToList();
+                 select new SquareCatalogItemObject { Id = item.Id, ImageUrl = image.ImageData.Url, variations = filteredVariations.Where(f => f.ParentId == item.Id).ToList(), Name = item.ItemData.Name, CategoryId = item.ItemData.CategoryId }).ToList();
 
 
 
@@ -89,26 +88,6 @@ namespace CSWebAPI.Controllers
 
                 // }
                 return Ok(output);
-
-            }
-            catch (ApiException e)
-            {
-                Console.WriteLine("Failed to make the request");
-                Console.WriteLine($"Response Code: {e.ResponseCode}");
-                Console.WriteLine($"Exception: {e.Message}");
-                return BadRequest();
-            }
-        }
-
-        [HttpGet("{id}", Name = "image-info")]
-
-        public async Task<IActionResult> GetImageUrlById(string id)
-        {
-            try
-            {
-
-                var result = await client.CatalogApi.RetrieveCatalogObjectAsync(objectId: id, includeRelatedObjects: false);
-                return Ok(result);
 
             }
             catch (ApiException e)
